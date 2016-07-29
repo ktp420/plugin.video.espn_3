@@ -9,7 +9,7 @@ import xbmcplugin
 import util
 import player_config
 import events
-import adobe_activate_api
+import espn_adobe_activate_api
 from globals import selfAddon, defaultlive, defaultreplay, defaultupcoming, defaultimage, defaultfanart, translation, pluginhandle
 from menu_listing import *
 from register_mode import RegisterMode
@@ -30,7 +30,7 @@ class Legacy(MenuListing):
 
     @RegisterMode(ROOT)
     def root_menu(self, args):
-        include_premium = adobe_activate_api.is_authenticated()
+        include_premium = espn_adobe_activate_api.is_authenticated()
         channel_list = events.get_channel_list(include_premium)
         curdate = datetime.utcnow()
         upcoming = int(selfAddon.getSetting('upcoming'))+1

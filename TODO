@@ -1,0 +1,6 @@
+1. going from authenticate to an event and then pressing back
+causes the authenticate dialog to show again
+a. perhaps because the back button uses a cached display with the old mode?
+
+TODO: Move the adobe activate api to a script so that it can be called
+from settings.xml

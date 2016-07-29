@@ -4,7 +4,7 @@ import base64
 import xbmcplugin
 
 import util
-import adobe_activate_api
+import espn_adobe_activate_api
 from globals import defaultlive, defaultfanart, translation, pluginhandle
 from addon_util import *
 from menu_listing import *
@@ -36,7 +36,7 @@ class Roku(MenuListing):
                 continue
             extra = ''
             if group['visibility'] == 'authenticated':
-                if not adobe_activate_api.is_authenticated():
+                if not espn_adobe_activate_api.is_authenticated():
                     extra = '*'
             if len(group['contents']) > 1:
                 extra += group['name'] + ' - '

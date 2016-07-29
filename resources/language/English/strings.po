@@ -286,6 +286,11 @@ msgstr ""
 
 msgctxt "#30910"
 msgid "There was an SSL certificate verification failure would you like to disable this verification? (configured in settings)"
+msgstr ""
+
+msgctxt "#30920"
+msgid "Authenticate Device"
+msgstr ""
 
 msgctxt "#30990"
 msgid "ESPN"

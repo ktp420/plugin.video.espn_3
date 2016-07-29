@@ -8,7 +8,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-import adobe_activate_api
+import espn_adobe_activate_api
 import util
 import player_config
 import events
@@ -189,7 +189,7 @@ def index_item(args):
 
     description = args['description']
     requires_auth = does_requires_auth(network_id)
-    if requires_auth and not adobe_activate_api.is_authenticated():
+    if requires_auth and not espn_adobe_activate_api.is_authenticated():
         ename = '*' + ename
 
     xbmc.log(TAG + 'Duration %s' % length, xbmc.LOGDEBUG)

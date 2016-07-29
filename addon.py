@@ -17,7 +17,7 @@ import xbmcgui
 import xbmcplugin
 
 from resources.lib import util
-from resources.lib import adobe_activate_api
+from resources.lib import espn_adobe_activate_api
 from resources.lib.globals import selfAddon, defaultlive, defaultreplay, defaultupcoming, defaultimage, defaultfanart, translation, pluginhandle, UA_PC
 from resources.lib.constants import *
 from resources.lib.addon_util import *
@@ -32,7 +32,7 @@ from resources.lib import events
 TAG = 'ESPN3: '
 
 def ROOT_ITEM(refresh):
-    if not adobe_activate_api.is_authenticated():
+    if not espn_adobe_activate_api.is_authenticated():
         addDir('[COLOR=FFFF0000]' + translation(30300) + '[/COLOR]',
                dict(MODE=AUTHENTICATE_MODE),
                defaultreplay)
@@ -40,7 +40,7 @@ def ROOT_ITEM(refresh):
     addDir(translation(30850) % current_time,
            dict(MODE=REFRESH_LIVE_MODE),
            defaultlive)
-    include_premium = adobe_activate_api.is_authenticated()
+    include_premium = espn_adobe_activate_api.is_authenticated()
     channel_list = events.get_channel_list(include_premium)
     legacy_inst = legacy.Legacy()
     espn_url = list()
@@ -66,7 +66,7 @@ def ROOT_ITEM(refresh):
         addDir(translation(30750),
                dict(MODE='/tvos/'),
                defaultlive)
-    if adobe_activate_api.is_authenticated():
+    if espn_adobe_activate_api.is_authenticated():
         addDir('[COLOR=FF00FF00]' + translation(30380) + '[/COLOR]',
            dict(MODE=AUTHENTICATION_DETAILS_MODE),
            defaultfanart)
@@ -88,25 +88,25 @@ def PLAY_TV(args):
         event_name = args.get(EVENT_NAME)[0]
         event_guid = args.get(EVENT_GUID)[0]
         event_parental_rating = args.get(EVENT_PARENTAL_RATING)[0]
-        resource = adobe_activate_api.get_resource(network_name, event_name, event_guid, event_parental_rating)
+        resource = espn_adobe_activate_api.get_resource(network_name, event_name, event_guid, event_parental_rating)
     else:
         resource = resource[0]
 
     requires_auth = does_requires_auth(network_name)
 
     if requires_auth:
-        if not adobe_activate_api.is_authenticated():
+        if not espn_adobe_activate_api.is_authenticated():
             dialog = xbmcgui.Dialog()
             dialog.ok(translation(30037), translation(30410))
             return
         try:
             # testing code raise urllib2.HTTPError(url='test', code=403, msg='no', hdrs=dict(), fp=None)
-            media_token = adobe_activate_api.get_short_media_token(resource)
+            media_token = espn_adobe_activate_api.get_short_media_token(resource)
         except urllib2.HTTPError as exception:
             if exception.code == 410:
                 dialog = xbmcgui.Dialog()
                 dialog.ok(translation(30037), translation(30840))
-                adobe_activate_api.deauthorize()
+                espn_adobe_activate_api.deauthorize()
                 xbmcplugin.endOfDirectory(pluginhandle, succeeded=False, updateListing=True)
                 return
             elif exception.code == 403:
@@ -123,7 +123,7 @@ def PLAY_TV(args):
 
         token_type = 'ADOBEPASS'
     else:
-        media_token = adobe_activate_api.get_device_id()
+        media_token = espn_adobe_activate_api.get_device_id()
         token_type = 'DEVICE'
 
 
@@ -226,32 +226,35 @@ mode = args.get(MODE, None)
 refresh = False
 if mode is not None and mode[0] == AUTHENTICATE_MODE:
     xbmc.log('Authenticate Device', xbmc.LOGDEBUG)
-    regcode = adobe_activate_api.get_regcode()
-    dialog = xbmcgui.Dialog()
-    ok = dialog.yesno(translation(30310),
-                   translation(30320),
-                   translation(30330) % regcode,
-                   translation(30340),
-                   translation(30360),
-                   translation(30350))
-    if ok:
-        try:
-            adobe_activate_api.authenticate()
-            dialog.ok(translation(30310), translation(30370))
-        except urllib2.HTTPError as e:
-            dialog.ok(translation(30037), translation(30420) % e)
+    if espn_adobe_activate_api.is_authenticated():
+        xbmc.log('Device already authenticated, skipping authentication', xbmc.LOGDEBUG)
+    else:
+        regcode = espn_adobe_activate_api.get_regcode()
+        dialog = xbmcgui.Dialog()
+        ok = dialog.yesno(translation(30310),
+                       translation(30320),
+                       translation(30330) % regcode,
+                       translation(30340),
+                       translation(30360),
+                       translation(30350))
+        if ok:
+            try:
+                espn_adobe_activate_api.authenticate()
+                dialog.ok(translation(30310), translation(30370))
+            except urllib2.HTTPError as e:
+                dialog.ok(translation(30037), translation(30420) % e)
     mode = None
     refresh = True
 elif mode is not None and mode[0] == AUTHENTICATION_DETAILS_MODE:
     dialog = xbmcgui.Dialog()
     ok = dialog.yesno(translation(30380),
-                      translation(30390) % adobe_activate_api.get_authentication_expires(),
+                      translation(30390) % espn_adobe_activate_api.get_authentication_expires(),
                       translation(30700) % (player_config.get_dma(), player_config.get_timezone()),
                       translation(30710) % (player_config.get_can_sso(), player_config.get_sso_abuse()),
                       nolabel = translation(30360),
                       yeslabel = translation(30430))
     if ok:
-        adobe_activate_api.deauthorize()
+        espn_adobe_activate_api.deauthorize()
     mode = None
     refresh = True
 
@@ -279,16 +282,16 @@ if mode is not None:
 if mode is not None and mode[0] == REFRESH_LIVE_MODE:
     mode = None
     refresh = True
-    include_premium = adobe_activate_api.is_authenticated()
+    include_premium = espn_adobe_activate_api.is_authenticated()
     channel_list = events.get_channel_list(include_premium)
     util.clear_cache(events.get_live_events_url(channel_list))
 
 if mode is None:
     try:
-        adobe_activate_api.clean_up_authorization_tokens()
+        espn_adobe_activate_api.clean_up_authorization_tokens()
     except:
         xbmc.log(TAG + 'Unable to clean up')
-        adobe_activate_api.reset_settings()
+        espn_adobe_activate_api.reset_settings()
     xbmc.log("Generate Main Menu", xbmc.LOGDEBUG)
     try:
         ROOT_ITEM(refresh)

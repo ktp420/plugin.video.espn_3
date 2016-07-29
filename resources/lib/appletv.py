@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 import util
 import player_config
-import adobe_activate_api
+import espn_adobe_activate_api
 from globals import selfAddon, defaultlive, defaultreplay, defaultupcoming, defaultimage, defaultfanart, translation, pluginhandle
 from addon_util import *
 from menu_listing import *
