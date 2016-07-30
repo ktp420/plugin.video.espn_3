@@ -33,7 +33,7 @@ from resources.lib import events
 TAG = 'ESPN3: '
 
 
-def ROOT_ITEM(refresh):
+def root_item(refresh):
     if not espn_adobe_activate_api.is_authenticated():
         addDir('[COLOR=FFFF0000]' + translation(30300) + '[/COLOR]',
                dict(MODE=AUTHENTICATE_MODE),
@@ -70,20 +70,19 @@ def ROOT_ITEM(refresh):
                defaultlive)
     if espn_adobe_activate_api.is_authenticated():
         addDir('[COLOR=FF00FF00]' + translation(30380) + '[/COLOR]',
-           dict(MODE=AUTHENTICATION_DETAILS_MODE),
-           defaultfanart)
+               dict(MODE=AUTHENTICATION_DETAILS_MODE),
+               defaultfanart)
     xbmcplugin.endOfDirectory(pluginhandle, updateListing=refresh, cacheToDisc=False)
 
-def PLAY_ITEM(args):
+
+def play_item(args):
     url = args.get(PLAYBACK_URL)[0]
     item = xbmcgui.ListItem(path=url)
     return xbmcplugin.setResolvedUrl(pluginhandle, True, item)
 
-# Cookie is only needed when authenticating with espn broadband as opposed to uplynk
-#ua UA_PC
-#finalurl = finalurl + '|Connection=keep-alive&User-Agent=' + urllib.quote(ua) + '&Cookie=_mediaAuth=' + urllib.quote(base64.b64encode(pkan))
-def PLAY_TV(args):
 
+# Cookie is only needed when authenticating with espn broadband as opposed to uplynk
+def play_tv(args):
     resource = args.get(ADOBE_RSS, None)
     network_name = args.get(NETWORK_NAME)[0]
     if resource is None:
@@ -127,7 +126,6 @@ def PLAY_TV(args):
     else:
         media_token = espn_adobe_activate_api.get_device_id()
         token_type = 'DEVICE'
-
 
     # see aHR0cDovL2FwaS1hcHAuZXNwbi5jb20vdjEvd2F0Y2gvY2xpZW50cy93YXRjaGVzcG4tdHZvcw== for details
     # see aHR0cDovL2VzcG4uZ28uY29tL3dhdGNoZXNwbi9hcHBsZXR2L2ZlYXR1cmVk for details
@@ -221,6 +219,13 @@ def PLAY_TV(args):
         item = xbmcgui.ListItem(path=playback_url)
         xbmcplugin.setResolvedUrl(pluginhandle, success, item)
 
+
+def upcoming_mode():
+    xbmc.log("Upcoming", xbmc.LOGDEBUG)
+    dialog = xbmcgui.Dialog()
+    dialog.ok(translation(30035), translation(30036))
+    xbmcplugin.endOfDirectory(pluginhandle, succeeded=False, updateListing=True)
+
 base_url = sys.argv[0]
 xbmc.log(TAG + 'QS: %s' % sys.argv[2], xbmc.LOGDEBUG)
 args = urlparse.parse_qs(sys.argv[2][1:])
@@ -298,7 +303,7 @@ if mode is None:
         espn_adobe_activate_api.reset_settings()
     xbmc.log("Generate Main Menu", xbmc.LOGDEBUG)
     try:
-        ROOT_ITEM(refresh)
+        root_item(refresh)
     except IOError as exception:
         xbmc.log('SSL certificate failure %s' % exception, xbmc.LOGDEBUG)
         xbmc.log('%s-%s-%s' % (exception.errno, exception.message, exception.strerror), xbmc.LOGDEBUG)
@@ -307,18 +312,15 @@ if mode is None:
             ok = dialog.yesno(translation(30037), translation(30910))
             if ok:
                 selfAddon.setSetting('DisableSSL', 'true')
-                ROOT_ITEM(refresh)
+                root_item(refresh)
             else:
                 raise exception
         else:
             raise exception
 
 elif mode[0] == PLAY_ITEM_MODE:
-    PLAY_ITEM(args)
+    play_item(args)
 elif mode[0] == PLAY_TV_MODE:
-    PLAY_TV(args)
+    play_tv(args)
 elif mode[0] == UPCOMING_MODE:
-    xbmc.log("Upcoming", xbmc.LOGDEBUG)
-    dialog = xbmcgui.Dialog()
-    dialog.ok(translation(30035), translation(30036))
-    xbmcplugin.endOfDirectory(pluginhandle, succeeded=False, updateListing=True)
+    upcoming_mode()
