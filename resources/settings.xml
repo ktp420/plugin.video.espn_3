@@ -36,7 +36,5 @@
         <setting id="NoColors" type="bool" label="30770" default="false"/>
         <setting id="ClearData" type="bool" label="30170" default="false"/>
         <setting id="DisableSSL" type="bool" label="30180" default="false"/>
-        <setting label="30920" type="action" action="RunScript(script.adobe, ESPN, yKpsHYd8TOITdTMJHmkJOVmgbb2DykNK, gB8HYdEPyezeYbR1, AUTHENTICATE_DEVICE)"/>
-        <setting label="30380" type="action" action="RunScript(script.adobe, ESPN, yKpsHYd8TOITdTMJHmkJOVmgbb2DykNK, gB8HYdEPyezeYbR1, AUTHENTICATION_DETAILS)"/>
     </category>
 </settings>

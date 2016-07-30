@@ -18,7 +18,8 @@ import xbmcplugin
 
 from resources.lib import util
 from resources.lib import espn_adobe_activate_api
-from resources.lib.globals import selfAddon, defaultlive, defaultreplay, defaultupcoming, defaultimage, defaultfanart, translation, pluginhandle, UA_PC
+from resources.lib.globals import selfAddon, defaultlive, defaultreplay, defaultupcoming, defaultimage, \
+    defaultfanart, translation, pluginhandle, UA_PC
 from resources.lib.constants import *
 from resources.lib.addon_util import *
 
@@ -30,6 +31,7 @@ from resources.lib import androidtv
 from resources.lib import events
 
 TAG = 'ESPN3: '
+
 
 def ROOT_ITEM(refresh):
     if not espn_adobe_activate_api.is_authenticated():
@@ -148,6 +150,8 @@ def PLAY_TV(args):
         if exception.code == 403:
             session_json = json.load(exception)
             xbmc.log(TAG + 'checking for errors in %s' % session_json)
+        else:
+            raise e
 
     if check_error(session_json):
         return
@@ -188,8 +192,8 @@ def PLAY_TV(args):
                 bandwidth = int(stream_info[bandwidth_key]) / 1024
                 if bandwidth <= bitrate_limit:
                     break
-                stream_index = stream_index + 1
-        elif '2' == stream_quality: #Ask everytime
+                stream_index += 1
+        elif '2' == stream_quality: # Ask everytime
             should_ask = True
         if should_ask:
             for playlist in m3u8_obj.data['playlists']:
